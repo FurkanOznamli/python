@@ -1,0 +1,128 @@
+import json
+
+def generate_kargo_numarasi():
+    numara = len(kargo_bilgileri) + 1
+    return str(numara)
+
+def kargolari_listele():
+    if not kargo_bilgileri:
+        print("Kayıtlı kargo bulunmamaktadır.")
+    else:
+        print("----- Eklenen Kargolar -----")
+        for kargo_takip_numarasi, kargo in kargo_bilgileri.items():
+            print("Kargo Takip Numarası:", kargo_takip_numarasi)
+            print("Kargo Durumu:", kargo["durum"])
+            print("Teslimat Adresi:", kargo["teslimat_adresi"])
+            print("Alıcı Adı:", kargo["alici_adi"])
+            print("Alıcı Soyadı:", kargo["alici_soyadi"])
+            print("Telefon Numarası:", kargo["telefon_numarasi"])
+            print("---------------------------")
+
+def kargo_sil():
+    secim = input("Silmek istediğiniz kargo takip numarasını girin: ")
+    if secim in kargo_bilgileri:
+        del kargo_bilgileri[secim]
+        print("Kargo silindi.")
+        kaydet()
+    else:
+        print("Geçersiz kargo takip numarası.")
+
+def admin_giris():
+    admin_sifre = "admin123"  # Önceden belirlenmiş yönetici şifresi
+    girilen_sifre = input("Yönetici şifresini girin: ")
+    if girilen_sifre == admin_sifre:
+        while True:
+            print("1. Kargo Ekleme")
+            print("2. Kargoları Listeleme")
+            print("3. Kargo Silme")
+            print("4. Ana Menüye Dön")
+            secim = input("Seçiminizi yapın (1, 2, 3 veya 4): ")
+
+            if secim == "1":
+                kargo_takip_numarasi = generate_kargo_numarasi()
+                kargo_durumu = input("Kargonun nerede olduğunu girin: ")
+                teslimat_adresi = input("Teslimat adresini girin: ")
+                alici_adi = input("Alıcı adını girin: ")
+                alici_soyadi = input("Alıcı soyadını girin: ")
+                telefon_numarasi = input("Telefon numarasını girin: ")
+                kargo_bilgileri[kargo_takip_numarasi] = {
+                    "durum": kargo_durumu,
+                    "teslimat_adresi": teslimat_adresi,
+                    "alici_adi": alici_adi,
+                    "alici_soyadi": alici_soyadi,
+                    "telefon_numarasi": telefon_numarasi
+                }
+                print("Kargo başarıyla eklendi.")
+                print("Kargo Takip Numarası:", kargo_takip_numarasi)
+                kaydet()
+
+            elif secim == "2":
+                kargolari_listele()
+
+            elif secim == "3":
+                kargo_sil()
+
+            elif secim == "4":
+                print("Ana menüye dönülüyor...")
+                break
+
+            else:
+                print("Geçersiz seçim.")
+
+    else:
+        print("Yanlış şifre. Yönetici girişi başarısız.")
+
+def kullanici_giris():
+    kargo_takip_numarasi = input("Kargo takip numarasını girin: ")
+    if kargo_takip_numarasi in kargo_bilgileri:
+        kargo_durumu = kargo_bilgileri[kargo_takip_numarasi]["durum"]
+        teslimat_adresi = kargo_bilgileri[kargo_takip_numarasi]["teslimat_adresi"]
+        alici_adi = kargo_bilgileri[kargo_takip_numarasi]["alici_adi"]
+        alici_soyadi = kargo_bilgileri[kargo_takip_numarasi]["alici_soyadi"]
+        telefon_numarasi = kargo_bilgileri[kargo_takip_numarasi]["telefon_numarasi"]
+        print("Kargo Durumu:", kargo_durumu)
+        print("Teslimat Adresi:", teslimat_adresi)
+        print("Alıcı Adı:", alici_adi)
+        print("Alıcı Soyadı:", alici_soyadi)
+        print("Telefon Numarası:", telefon_numarasi)
+    else:
+        print("Geçersiz kargo takip numarası.")
+
+def kaydet():
+    with open("kargo_bilgileri.txt", "w") as dosya:
+        json.dump(kargo_bilgileri, dosya)
+
+def yukle():
+    global kargo_bilgileri
+    try:
+        with open("kargo_bilgileri.txt", "r") as dosya:
+            kargo_bilgileri = json.load(dosya)
+    except FileNotFoundError:
+        kargo_bilgileri = {}
+
+def ana_menuye_don():
+    while True:
+        secim = input("Ana menüye dönmek istiyor musunuz? (E/H): ")
+        if secim.upper() == "E":
+            ana_menu()
+        elif secim.upper() == "H":
+            print("Programdan çıkılıyor...")
+            break
+        else:
+            print("Geçersiz seçim. Lütfen E veya H girin.")
+
+def ana_menu():
+    yukle()
+    print("1. Kullanıcı Girişi")
+    print("2. Yönetici Girişi")
+    secim = input("Seçiminizi yapın (1 veya 2): ")
+    if secim == "1":
+        kullanici_giris()
+        ana_menuye_don()
+    elif secim == "2":
+        admin_giris()
+    else:
+        print("Geçersiz seçim.")
+
+# Ana menüyü başlat
+ana_menu()
